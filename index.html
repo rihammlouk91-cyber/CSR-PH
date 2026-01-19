@@ -501,8 +501,8 @@
                     <label>Password</label>
                     <input type="password" id="loginPassword" placeholder="Enter your password">
                 </div>
-                <button class="btn btn-primary" onclick="login()">Sign In</button>
-                <button class="btn btn-secondary" onclick="showSignup()">Create Account</button>
+                <button class="btn btn-primary" id="loginBtn">Sign In</button>
+                <button class="btn btn-secondary" id="showSignupBtn">Create Account</button>
             </div>
             <div id="signupForm" class="hidden">
                 <div class="form-group">
@@ -513,8 +513,8 @@
                     <label>Password</label>
                     <input type="password" id="signupPassword" placeholder="Create a password">
                 </div>
-                <button class="btn btn-primary" onclick="signup()">Create Account</button>
-                <button class="btn btn-secondary" onclick="showLogin()">Back to Login</button>
+                <button class="btn btn-primary" id="signupBtn">Create Account</button>
+                <button class="btn btn-secondary" id="showLoginBtn">Back to Login</button>
             </div>
         </div>
     </div>
@@ -526,19 +526,19 @@
             <h1>CSR Project Tracker</h1>
             <div class="header-right">
                 <span class="user-info" id="userEmail"></span>
-                <button class="btn-logout" onclick="logout()">Logout</button>
+                <button class="btn-logout" id="logoutBtn">Logout</button>
             </div>
         </div>
 
         <!-- Navigation -->
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('dashboard')">Dashboard</button>
-            <button class="nav-tab" onclick="switchTab('projects')">Projects</button>
-            <button class="nav-tab" onclick="switchTab('kanban')">Kanban</button>
-            <button class="nav-tab" onclick="switchTab('analytics')">Analytics</button>
-            <button class="nav-tab" onclick="switchTab('calendar')">Calendar</button>
-            <button class="nav-tab" onclick="switchTab('communications')">Communications</button>
-            <button class="nav-tab hidden" id="auditTab" onclick="switchTab('audit')">Audit Trail</button>
+            <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
+            <button class="nav-tab" data-tab="projects">Projects</button>
+            <button class="nav-tab" data-tab="kanban">Kanban</button>
+            <button class="nav-tab" data-tab="analytics">Analytics</button>
+            <button class="nav-tab" data-tab="calendar">Calendar</button>
+            <button class="nav-tab" data-tab="communications">Communications</button>
+            <button class="nav-tab hidden" id="auditTab" data-tab="audit">Audit Trail</button>
         </div>
 
         <!-- Main Content -->
@@ -588,7 +588,7 @@
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h2 style="margin: 0;">Projects</h2>
-                        <button class="btn btn-primary" style="width: auto; padding: 10px 20px;" onclick="showProjectModal()">+ New Project</button>
+                        <button class="btn btn-primary" style="width: auto; padding: 10px 20px;" id="newProjectBtn">+ New Project</button>
                     </div>
                     <div class="table-container">
                         <table id="projectsTable">
@@ -637,7 +637,7 @@
                     <h2>Analytics Dashboard</h2>
                     <p>Select a project to view detailed analytics</p>
                     <div class="form-group">
-                        <select id="analyticsProjectSelect" onchange="loadAnalytics()">
+                        <select id="analyticsProjectSelect">
                             <option value="">Select a project...</option>
                         </select>
                     </div>
@@ -649,7 +649,7 @@
             <div class="tab-content" id="calendar">
                 <div class="card">
                     <h2>Team Calendar & Leave</h2>
-                    <button class="btn btn-primary" style="width: auto; padding: 10px 20px; margin-bottom: 16px;" onclick="showLeaveModal()">+ Add Leave</button>
+                    <button class="btn btn-primary" style="width: auto; padding: 10px 20px; margin-bottom: 16px;" id="newLeaveBtn">+ Add Leave</button>
                     <div class="table-container">
                         <table id="leaveTable">
                             <thead>
@@ -671,7 +671,7 @@
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h2 style="margin: 0;">Communications</h2>
-                        <button class="btn btn-primary" style="width: auto; padding: 10px 20px;" onclick="showCommModal()">+ New Communication</button>
+                        <button class="btn btn-primary" style="width: auto; padding: 10px 20px;" id="newCommBtn">+ New Communication</button>
                     </div>
                     <div class="table-container">
                         <table id="commsTable">
@@ -719,9 +719,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>New Project</h2>
-                <button class="close-modal" onclick="closeModal('projectModal')">×</button>
+                <button class="close-modal" data-modal="projectModal">×</button>
             </div>
-            <form onsubmit="saveProject(event)">
+            <form id="projectForm">
                 <div class="form-grid">
                     <div class="form-group full">
                         <label>Project Name *</label>
@@ -770,9 +770,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Add Leave</h2>
-                <button class="close-modal" onclick="closeModal('leaveModal')">×</button>
+                <button class="close-modal" data-modal="leaveModal">×</button>
             </div>
-            <form onsubmit="saveLeave(event)">
+            <form id="leaveForm">
                 <div class="form-group">
                     <label>Member *</label>
                     <input type="text" id="leaveMember" required>
@@ -798,9 +798,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>New Communication</h2>
-                <button class="close-modal" onclick="closeModal('commModal')">×</button>
+                <button class="close-modal" data-modal="commModal">×</button>
             </div>
-            <form onsubmit="saveComm(event)">
+            <form id="commForm">
                 <div class="form-grid">
                     <div class="form-group full">
                         <label>Subject *</label>
@@ -915,4 +915,340 @@
                 const tasksSnap = await getDocs(collection(db, 'tasks'));
                 window.tasks = tasksSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                const commsSn
+                const commsSnap = await getDocs(collection(db, 'communications'));
+                window.communications = commsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                const leavesSnap = await getDocs(collection(db, 'leaves'));
+                window.leaves = leavesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                renderDashboard();
+                renderProjects();
+                renderKanban();
+                renderCommunications();
+                renderLeaves();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // UI Functions
+        function showApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+        }
+
+        function showLoginScreen() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        function showSignupForm() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+        }
+
+        function showLoginForm() {
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        // Auth Functions
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        }
+
+        async function handleSignup() {
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, 'roles', userCredential.user.uid), {
+                    uid: userCredential.user.uid,
+                    role: 'csr'
+                });
+            } catch (error) {
+                alert('Signup failed: ' + error.message);
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                showLoginScreen();
+            } catch (error) {
+                alert('Logout failed: ' + error.message);
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModalById(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Project Functions
+        async function saveProject(e) {
+            e.preventDefault();
+            
+            const projectData = {
+                name: document.getElementById('projectName').value,
+                priority: document.getElementById('projectPriority').value,
+                status: document.getElementById('projectStatus').value,
+                budget: parseFloat(document.getElementById('projectBudget').value),
+                beneficiaries: parseInt(document.getElementById('projectBeneficiaries').value),
+                owner: document.getElementById('projectOwner').value,
+                launchDate: document.getElementById('projectLaunchDate').value,
+                createdAt: serverTimestamp(),
+                createdBy: window.currentUser.email
+            };
+
+            try {
+                await addDoc(collection(db, 'projects'), projectData);
+                
+                if (window.userRole === 'admin') {
+                    await addDoc(collection(db, 'audit'), {
+                        timestamp: serverTimestamp(),
+                        user: window.currentUser.email,
+                        action: 'created',
+                        type: 'project',
+                        title: projectData.name
+                    });
+                }
+                
+                closeModalById('projectModal');
+                document.getElementById('projectForm').reset();
+                await loadAllData();
+            } catch (error) {
+                alert('Error saving project: ' + error.message);
+            }
+        }
+
+        // Leave Functions
+        async function saveLeave(e) {
+            e.preventDefault();
+            
+            const leaveData = {
+                member: document.getElementById('leaveMember').value,
+                startDate: document.getElementById('leaveStart').value,
+                endDate: document.getElementById('leaveEnd').value,
+                notes: document.getElementById('leaveNotes').value,
+                createdAt: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db, 'leaves'), leaveData);
+                closeModalById('leaveModal');
+                document.getElementById('leaveForm').reset();
+                await loadAllData();
+            } catch (error) {
+                alert('Error saving leave: ' + error.message);
+            }
+        }
+
+        // Communication Functions
+        async function saveComm(e) {
+            e.preventDefault();
+            
+            const commData = {
+                subject: document.getElementById('commSubject').value,
+                type: document.getElementById('commType').value,
+                status: document.getElementById('commStatus').value,
+                priority: document.getElementById('commPriority').value,
+                deadline: document.getElementById('commDeadline').value,
+                owner: document.getElementById('commOwner').value,
+                date: new Date().toISOString().split('T')[0],
+                createdAt: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db, 'communications'), commData);
+                closeModalById('commModal');
+                document.getElementById('commForm').reset();
+                await loadAllData();
+            } catch (error) {
+                alert('Error saving communication: ' + error.message);
+            }
+        }
+
+        // Render Functions
+        function renderDashboard() {
+            const today = new Date();
+            const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+            const activeProjects = window.projects.filter(p => p.status !== 'Completed').length;
+            const overdueTasks = window.tasks.filter(t => 
+                t.status !== 'Completed' && new Date(t.deadline) < today
+            ).length;
+            const dueThisWeek = window.tasks.filter(t => {
+                const deadline = new Date(t.deadline);
+                return t.status !== 'Completed' && deadline >= today && deadline <= weekFromNow;
+            }).length;
+            const completedTasks = window.tasks.filter(t => t.status === 'Completed').length;
+
+            document.getElementById('activeProjects').textContent = activeProjects;
+            document.getElementById('overdueTasks').textContent = overdueTasks;
+            document.getElementById('dueThisWeek').textContent = dueThisWeek;
+            document.getElementById('completedTasks').textContent = completedTasks;
+
+            const highPriorityTasks = window.tasks.filter(t => 
+                t.priority === 'High' && t.status !== 'Completed'
+            ).slice(0, 10);
+
+            const tbody = document.querySelector('#highPriorityTable tbody');
+            tbody.innerHTML = highPriorityTasks.map(task => {
+                const project = window.projects.find(p => p.id === task.projectId);
+                return `
+                    <tr>
+                        <td>${task.name}</td>
+                        <td>${project ? project.name : 'N/A'}</td>
+                        <td>${task.owner}</td>
+                        <td>${task.deadline}</td>
+                        <td><span class="badge badge-${task.status.toLowerCase().replace(' ', '')}">${task.status}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderProjects() {
+            const tbody = document.querySelector('#projectsTable tbody');
+            tbody.innerHTML = window.projects.map(project => {
+                const projectTasks = window.tasks.filter(t => t.projectId === project.id);
+                const completedCount = projectTasks.filter(t => t.status === 'Completed').length;
+                const completion = projectTasks.length > 0 
+                    ? Math.round((completedCount / projectTasks.length) * 100) 
+                    : 0;
+
+                return `
+                    <tr>
+                        <td>${project.name}</td>
+                        <td><span class="badge badge-${project.priority.toLowerCase()}">${project.priority}</span></td>
+                        <td><span class="badge badge-${project.status.toLowerCase().replace(' ', '')}">${project.status}</span></td>
+                        <td>${project.owner}</td>
+                        <td>${project.budget.toLocaleString()}</td>
+                        <td>
+                            ${completion}%
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${completion}%"></div>
+                            </div>
+                        </td>
+                        <td><button class="btn btn-primary" style="width: auto; padding: 6px 12px; font-size: 12px;">View</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderKanban() {
+            const statuses = ['Pending', 'Ongoing', 'On Hold', 'Completed'];
+            
+            statuses.forEach(status => {
+                const containerId = `kanban-${status.toLowerCase().replace(' ', '')}`;
+                const container = document.getElementById(containerId);
+                const statusProjects = window.projects.filter(p => p.status === status);
+                
+                container.innerHTML = statusProjects.map(project => `
+                    <div class="kanban-card">
+                        <strong>${project.name}</strong>
+                        <div style="font-size: 12px; color: var(--text-light); margin-top: 4px;">
+                            <span class="badge badge-${project.priority.toLowerCase()}">${project.priority}</span>
+                        </div>
+                        <div style="font-size: 12px; margin-top: 8px;">
+                            Owner: ${project.owner}
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        function renderCommunications() {
+            const tbody = document.querySelector('#commsTable tbody');
+            tbody.innerHTML = window.communications.map(comm => `
+                <tr>
+                    <td>${comm.date}</td>
+                    <td>${comm.subject}</td>
+                    <td>${comm.type}</td>
+                    <td><span class="badge badge-${comm.status.toLowerCase().replace(' ', '')}">${comm.status}</span></td>
+                    <td><span class="badge badge-${comm.priority.toLowerCase()}">${comm.priority}</span></td>
+                    <td>${comm.deadline}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderLeaves() {
+            const tbody = document.querySelector('#leaveTable tbody');
+            tbody.innerHTML = window.leaves.map(leave => `
+                <tr>
+                    <td>${leave.member}</td>
+                    <td>${leave.startDate}</td>
+                    <td>${leave.endDate}</td>
+                    <td>${leave.notes || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auth buttons
+            document.getElementById('loginBtn').addEventListener('click', handleLogin);
+            document.getElementById('signupBtn').addEventListener('click', handleSignup);
+            document.getElementById('showSignupBtn').addEventListener('click', showSignupForm);
+            document.getElementById('showLoginBtn').addEventListener('click', showLoginForm);
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+            // Tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const tabName = e.target.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+
+            // Modal buttons
+            document.getElementById('newProjectBtn').addEventListener('click', () => openModal('projectModal'));
+            document.getElementById('newLeaveBtn').addEventListener('click', () => openModal('leaveModal'));
+            document.getElementById('newCommBtn').addEventListener('click', () => openModal('commModal'));
+
+            // Close modal buttons
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const modalId = e.target.getAttribute('data-modal');
+                    closeModalById(modalId);
+                });
+            });
+
+            // Form submissions
+            document.getElementById('projectForm').addEventListener('submit', saveProject);
+            document.getElementById('leaveForm').addEventListener('submit', saveLeave);
+            document.getElementById('commForm').addEventListener('submit', saveComm);
+
+            // Click outside modal to close
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
