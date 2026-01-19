@@ -655,21 +655,26 @@
 
     async function loadAllData() {
       try {
-        const projectsSnap = await getDocs(query(collection(db, 'projects'), orderBy('createdAt', 'desc')));
+        const projectsSnap = await getDocs(collection(db, 'projects'));
         window.projects = projectsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        window.projects.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
-        const tasksSnap = await getDocs(query(collection(db, 'tasks'), orderBy('createdAt', 'desc')));
+        const tasksSnap = await getDocs(collection(db, 'tasks'));
         window.tasks = tasksSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        window.tasks.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
-        const commsSnap = await getDocs(query(collection(db, 'communications'), orderBy('createdAt', 'desc')));
+        const commsSnap = await getDocs(collection(db, 'communications'));
         window.communications = commsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        window.communications.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
-        const leavesSnap = await getDocs(query(collection(db, 'leaves'), orderBy('createdAt', 'desc')));
+        const leavesSnap = await getDocs(collection(db, 'leaves'));
         window.leaves = leavesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        window.leaves.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
         if (window.userRole === 'admin') {
-          const auditSnap = await getDocs(query(collection(db, 'audit'), orderBy('timestamp', 'desc')));
+          const auditSnap = await getDocs(collection(db, 'audit'));
           window.audit = auditSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+          window.audit.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
         } else {
           window.audit = [];
         }
@@ -761,6 +766,12 @@
     // ---------- Data Actions ----------
     async function saveProject(e) {
       e.preventDefault();
+      const btn = document.querySelector('#projectForm button[type="submit"]');
+if (btn.disabled) return;
+btn.disabled = true;
+const old = btn.textContent;
+btn.textContent = 'Saving...';
+
 
       const projectData = {
         name: document.getElementById('projectName').value.trim(),
@@ -790,13 +801,22 @@
         closeModalById('projectModal');
         document.getElementById('projectForm').reset();
         await loadAllData();
-      } catch (error) {
-        alert('Error saving project: ' + error.message);
-      }
+  } catch (error) {
+    alert('Error saving project: ' + error.message);
+  } finally {
+    btn.textContent = old;
+    btn.disabled = false;
+  }
     }
 
     async function saveLeave(e) {
       e.preventDefault();
+      const btn = document.querySelector('#leaveForm button[type="submit"]');
+      if (btn.disabled) return;
+      const old = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      
       const leaveData = {
         member: document.getElementById('leaveMember').value.trim(),
         startDate: document.getElementById('leaveStart').value,
@@ -824,12 +844,20 @@
         await loadAllData();
       } catch (error) {
         alert('Error saving leave: ' + error.message);
-      }
+      }finally {
+    btn.textContent = old;
+    btn.disabled = false;
+  }
     }
 
     async function saveComm(e) {
       e.preventDefault();
-
+      const btn = document.querySelector('#commForm button[type="submit"]');
+      if (btn.disabled) return;
+      const old = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      
       const commData = {
         subject: document.getElementById('commSubject').value.trim(),
         type: document.getElementById('commType').value,
@@ -860,11 +888,20 @@
         await loadAllData();
       } catch (error) {
         alert('Error saving communication: ' + error.message);
-      }
+      }finally {
+    btn.textContent = old;
+    btn.disabled = false;
+  }
     }
 
     async function saveTask(e) {
       e.preventDefault();
+      const btn = document.querySelector('#taskForm button[type="submit"]');
+      if (btn.disabled) return;
+      const old = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      
       if (!currentProjectId) return alert('No project selected.');
 
       const taskData = {
@@ -897,7 +934,10 @@
         renderProjectViewModal(currentProjectId);
       } catch (error) {
         alert('Error saving task: ' + error.message);
-      }
+      }finally {
+    btn.textContent = old;
+    btn.disabled = false;
+  }
     }
 
     // ---------- Render Helpers ----------
@@ -1310,6 +1350,25 @@
         .replaceAll("'","&#039;");
     }
 
+
+    function withButtonLoading(buttonEl, loadingText, fn) {
+  return async (...args) => {
+    const originalText = buttonEl.textContent;
+    const originalDisabled = buttonEl.disabled;
+
+    buttonEl.disabled = true;
+    buttonEl.textContent = loadingText;
+
+    try {
+      return await fn(...args);
+    } finally {
+      buttonEl.textContent = originalText;
+      buttonEl.disabled = originalDisabled;
+    }
+  };
+}
+
+    
     // ---------- Event Listeners ----------
     document.addEventListener('DOMContentLoaded', () => {
       // Auth
